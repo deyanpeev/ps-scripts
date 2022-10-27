@@ -92,4 +92,6 @@ process {
     
     Write-Host "Arrange Arrange in groups"
     Add-FilesToGroups -Directory $Directory -GroupPrefix $FilePrefix -GroupSize $GroupSize
+
+    Write-Host "Git test"
 }
