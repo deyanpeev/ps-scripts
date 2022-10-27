@@ -51,7 +51,7 @@ process {
             $filesLength = $files.Count.ToString().Length
             $filesNumber = $file.Name -replace "[^0-9]" , ''
             $fileName = "$($FilePrefix)_$("{0:d$filesLength}" -f [int]$filesNumber)$($file.Extension)"
-            Write-Host "Renaming to " $fileName
+            Write-Host "Renaming from " $file.BaseName " to " $fileName
             Rename-Item -Path $file.FullName -NewName $fileName
         }
     }
@@ -65,6 +65,7 @@ process {
         )
 
         if($GroupSize -eq 0 -or $GroupSize -eq $null) {
+            Write-Host "Group size is not defined. Skipping size grouping."
             return
         }
 
@@ -75,16 +76,20 @@ process {
             $groupIndex = [math]::floor($i++ / $GroupSize) + 1
             $itemFullName = "$($file.Directory.FullName)\$($GroupPrefix)_$($groupIndex)"
             if(!(Test-Path $itemFullName)){
+                Write-Host "Creating a folder " $itemFullName
                 New-Item -Path $itemFullName -ItemType Directory -Force
             }
 
             Move-Item -LiteralPath $file.FullName -Destination $itemFullName -Force
         }
-
     }
 
-
+    Write-Host "Arrange folders"
     Arrange-Folders -ParentDir $Directory
+
+    Write-Host "Change file names"
     Change-FileNames -ParentDir $Directory -FilePrefix $FilePrefix
+    
+    Write-Host "Arrange Arrange in groups"
     Add-FilesToGroups -Directory $Directory -GroupPrefix $FilePrefix -GroupSize $GroupSize
 }
